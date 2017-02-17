@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.kaka.shopinventory.data.StockContract.StockEntry;
 
@@ -64,20 +65,6 @@ public class StockProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
-        final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case STOCKS:
-                return StockEntry.CONTENT_LIST_TYPE;
-            case STOCK_ID:
-                return StockEntry.CONTENT_ITEM_TYPE;
-            default:
-                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
-        }
-    }
-
-
-    @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
@@ -89,16 +76,159 @@ public class StockProvider extends ContentProvider {
     }
 
     private Uri insertStock(Uri uri, ContentValues contentValues) {
-        return null;
+
+        SQLiteDatabase sqLiteDatabase = mDbHelper.getWritableDatabase();
+
+        String name = contentValues.getAsString(StockEntry.COLUMN_PRODUCT_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("Product requires a Name.");
+        }
+
+        Integer price = contentValues.getAsInteger(StockEntry.COLUMN_PRICE);
+        if (price != null && price < 0) {
+            throw new IllegalArgumentException("Product requires a valid price.");
+        }
+
+        Integer quantity = contentValues.getAsInteger(StockEntry.COLUMN_QUANTITY);
+        if (quantity != null && quantity < 0) {
+            throw new IllegalArgumentException("Product requires a valid quantity.");
+        }
+
+        String image = contentValues.getAsString(StockEntry.COLUMN_IMAGE);
+        if (image == null) {
+            throw new IllegalArgumentException("Product requires a image.");
+        }
+
+        String supplierName = contentValues.getAsString(StockEntry.COLUMN_SUPPLIER_NAME);
+        if (supplierName == null) {
+            throw new IllegalArgumentException("Product requires a supplier name.");
+        }
+
+        String supplierEmail = contentValues.getAsString(StockEntry.COLUMN_SUPPLIER_EMAIL);
+        if (supplierEmail == null) {
+            throw new IllegalArgumentException("Product requires a supplier email.");
+        }
+
+        long id = sqLiteDatabase.insert(StockEntry.TABLE_NAME, null, contentValues);
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return ContentUris.withAppendedId(uri, id);
+
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case STOCKS:
+                return updateStocks(uri, contentValues, selection, selectionArgs);
+            case STOCK_ID:
+                selection = StockEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updateStocks(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    private int updateStocks(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        SQLiteDatabase sqLiteDatabase = mDbHelper.getWritableDatabase();
+
+        if (contentValues.containsKey(StockEntry.COLUMN_PRODUCT_NAME)) {
+            String name = contentValues.getAsString(StockEntry.COLUMN_PRODUCT_NAME);
+            if (name == null) {
+                throw new IllegalArgumentException("Stock requires a name");
+            }
+        }
+
+        if (contentValues.containsKey(StockEntry.COLUMN_PRICE)) {
+            Integer price = contentValues.getAsInteger(StockEntry.COLUMN_PRICE);
+            if (price != null && price < 0) {
+                throw new IllegalArgumentException("Product needs a valid price.");
+            }
+        }
+
+        if (contentValues.containsKey(StockEntry.COLUMN_QUANTITY)) {
+            Integer quantity = contentValues.getAsInteger(StockEntry.COLUMN_QUANTITY);
+            if (quantity != null && quantity < 0) {
+                throw new IllegalArgumentException("Product needs a valid quantity.");
+            }
+        }
+
+        if (contentValues.containsKey(StockEntry.COLUMN_IMAGE)) {
+            String image = contentValues.getAsString(StockEntry.COLUMN_IMAGE);
+            if (image == null) {
+                throw new IllegalArgumentException("Product should have an image.");
+            }
+        }
+
+        if (contentValues.containsKey(StockEntry.COLUMN_SUPPLIER_NAME)) {
+            String supplierName = contentValues.getAsString(StockEntry.COLUMN_SUPPLIER_NAME);
+            if (supplierName == null) {
+                throw new IllegalArgumentException("Product should have a supplier name.");
+            }
+        }
+        if (contentValues.containsKey(StockEntry.COLUMN_SUPPLIER_EMAIL)) {
+            String supplierEmail = contentValues.getAsString(StockEntry.COLUMN_SUPPLIER_EMAIL);
+            if (supplierEmail == null) {
+                throw new IllegalArgumentException("Product should have a supplier email.");
+            }
+        }
+
+        if (contentValues.size() == 0) {
+            return 0;
+        }
+
+        int rowsUpdated = sqLiteDatabase.update(StockEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+
+        SQLiteDatabase sqLiteDatabase = mDbHelper.getWritableDatabase();
+
+        int rowsDeleted;
+
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case STOCKS:
+                rowsDeleted = sqLiteDatabase.delete(StockEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case STOCK_ID:
+                selection = StockEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = sqLiteDatabase.delete(StockEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
+
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+    public String getType(Uri uri) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case STOCKS:
+                return StockEntry.CONTENT_LIST_TYPE;
+            case STOCK_ID:
+                return StockEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
+        }
     }
 }
