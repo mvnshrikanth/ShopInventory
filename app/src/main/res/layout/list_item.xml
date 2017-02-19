@@ -24,7 +24,7 @@
         android:paddingStart="16dp">
 
         <TextView
-            android:id="@+id/text_view_product"
+            android:id="@+id/text_view_product_name"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -40,14 +40,14 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="top"
-            android:hint="QTY: 50"
+            android:hint="50"
             android:textAppearance="?android:textAppearanceSmall"
             android:textColor="@color/colorPrimaryDark" />
 
     </LinearLayout>
 
     <TextView
-        android:id="@+id/text_view_product_cost"
+        android:id="@+id/text_view_product_price"
         android:layout_width="0dp"
         android:layout_height="@dimen/list_item_height"
         android:layout_weight="1"
