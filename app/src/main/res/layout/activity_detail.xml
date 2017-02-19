@@ -26,23 +26,13 @@
         android:layout_weight="2"
         android:orientation="vertical">
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/edit_view_product_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_name" />
-
-            <EditText
-                android:id="@+id/edit_view_product_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Product Name"
-                android:inputType="textCapWords"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:hint="Product Name"
+            android:inputType="textCapWords"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
