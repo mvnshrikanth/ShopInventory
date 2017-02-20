@@ -24,10 +24,10 @@
 
         <ImageView
             android:id="@+id/empty_shop_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/list_item_height"
+            android:layout_height="@dimen/list_item_height"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/no_image_100x100" />
+            android:src="@drawable/shop" />
 
         <TextView
             android:id="@+id/empty_title_text"
