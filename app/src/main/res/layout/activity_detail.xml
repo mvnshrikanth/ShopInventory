@@ -11,7 +11,7 @@
     tools:context=".DetailActivity">
 
     <ImageButton
-        android:id="@+id/image_view_edit_product"
+        android:id="@+id/image_btn_view_edit_product"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -58,7 +58,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/btn_view_sub_qty"
+                android:id="@+id/btn_view_dec_qty"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -88,7 +88,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/btn_view_sub_price"
+                android:id="@+id/btn_view_dec_price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

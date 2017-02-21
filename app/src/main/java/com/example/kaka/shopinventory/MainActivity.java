@@ -1,8 +1,10 @@
 package com.example.kaka.shopinventory;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,7 +12,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -24,13 +29,22 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int STOCK_LOADER = 0;
     StockCursorAdapter mStockCursorAdapter;
+    int lastVisibleItem = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView listView = (ListView) findViewById(R.id.product_list);
+        final FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Clicked on the FAB", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        final ListView listView = (ListView) findViewById(R.id.product_list);
 
         View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
@@ -38,18 +52,34 @@ public class MainActivity extends AppCompatActivity implements
         mStockCursorAdapter = new StockCursorAdapter(this, null);
         listView.setAdapter(mStockCursorAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Clicked on a item" + position, Toast.LENGTH_SHORT).show();
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (scrollState == 0) return;
+                final int currentFirstVisibleItem = view.getFirstVisiblePosition();
+
+                if (currentFirstVisibleItem > lastVisibleItem) {
+                    floatingActionButton.show();
+                } else if (currentFirstVisibleItem < lastVisibleItem) {
+                    floatingActionButton.hide();
+                }
+                lastVisibleItem = currentFirstVisibleItem;
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
             }
         });
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                insertDummyStock();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                Uri currentStockUri = ContentUris.withAppendedId(StockEntry.CONTENT_URI, id);
+                intent.setData(currentStockUri);
+                startActivity(intent);
+                //Toast.makeText(MainActivity.this, "Clicked on a item @ " + position, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -62,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
         contentValues.put(StockEntry.COLUMN_PRODUCT_NAME, "Computer Keyboard");
         contentValues.put(StockEntry.COLUMN_PRICE, 50);
         contentValues.put(StockEntry.COLUMN_QUANTITY, 5);
-        contentValues.put(StockEntry.COLUMN_IMAGE, R.drawable.shop);
+        contentValues.put(StockEntry.COLUMN_IMAGE, "android.resource://com.example.kaka.shopinventory/drawable/shop");
         contentValues.put(StockEntry.COLUMN_SUPPLIER_NAME, "Dell Computers");
         contentValues.put(StockEntry.COLUMN_SUPPLIER_EMAIL, "mvnshrikanth@gmail.com");
 
@@ -103,4 +133,45 @@ public class MainActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         mStockCursorAdapter.swapCursor(null);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_catalog, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_insert_dummy_data:
+                insertDummyStock();
+                return true;
+            case R.id.action_delte_dummy_data:
+                deleteAllStock();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void sellProduct(int id, int quantity) {
+
+        if (quantity <= 0) {
+            Toast.makeText(this, "No more items in store to sell", Toast.LENGTH_SHORT).show();
+        } else {
+            quantity--;
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(StockEntry.COLUMN_QUANTITY, quantity);
+            Uri uri = ContentUris.withAppendedId(StockEntry.CONTENT_URI, id);
+            int rowsAffected = getContentResolver().update(uri, contentValues, null, null);
+
+            if (rowsAffected == 0) {
+                Toast.makeText(this, "Error updating product quantity", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Item Sold", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
 }

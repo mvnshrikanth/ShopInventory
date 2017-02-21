@@ -6,6 +6,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +19,11 @@ import com.squareup.picasso.Picasso;
 
 public class StockCursorAdapter extends CursorAdapter {
 
+    private final MainActivity mainActivity;
+
     public StockCursorAdapter(Context context, Cursor c) {
         super(context, c);
+        this.mainActivity = (MainActivity) context;
     }
 
     @Override
@@ -28,16 +32,24 @@ public class StockCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, Context context, final Cursor cursor) {
         ImageView imageView = (ImageView) view.findViewById(R.id.image_view_product);
         TextView textViewName = (TextView) view.findViewById(R.id.text_view_product_name);
         TextView textViewQty = (TextView) view.findViewById(R.id.text_view_product_qty);
         TextView textViewPrice = (TextView) view.findViewById(R.id.text_view_product_price);
+        ImageButton imageButtonSell = (ImageButton) view.findViewById(R.id.img_btn_view_sell_item);
 
-        String name = String.valueOf(cursor.getColumnIndexOrThrow(StockEntry.COLUMN_PRODUCT_NAME));
-        String imageUrl = String.valueOf(cursor.getColumnIndexOrThrow(StockEntry.COLUMN_IMAGE));
-        int quantity = cursor.getColumnIndexOrThrow(StockEntry.COLUMN_QUANTITY);
-        int price = cursor.getColumnIndexOrThrow(StockEntry.COLUMN_PRICE);
+        int idColumnIndex = cursor.getColumnIndex(StockEntry._ID);
+        int nameColumnIndex = cursor.getColumnIndex(StockEntry.COLUMN_PRODUCT_NAME);
+        int imageColumnIndex = cursor.getColumnIndex(StockEntry.COLUMN_IMAGE);
+        int qtyColumnIndex = cursor.getColumnIndex(StockEntry.COLUMN_QUANTITY);
+        int prcColumnIndex = cursor.getColumnIndex(StockEntry.COLUMN_PRICE);
+
+        final int id = cursor.getInt(idColumnIndex);
+        String name = cursor.getString(nameColumnIndex);
+        String imageUrl = cursor.getString(imageColumnIndex);
+        final int quantity = cursor.getInt(qtyColumnIndex);
+        int price = cursor.getInt(prcColumnIndex);
 
         if (imageUrl != null) {
             Picasso.with(context)
@@ -48,8 +60,14 @@ public class StockCursorAdapter extends CursorAdapter {
         }
 
         textViewName.setText(name);
-        textViewQty.setText(quantity);
-        textViewPrice.setText(price);
+        textViewQty.setText(String.valueOf(quantity));
+        textViewPrice.setText(String.valueOf("$" + price));
 
+        imageButtonSell.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.sellProduct(id, quantity);
+            }
+        });
     }
 }
