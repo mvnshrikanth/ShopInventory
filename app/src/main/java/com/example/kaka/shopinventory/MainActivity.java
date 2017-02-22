@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
         contentValues.put(StockEntry.COLUMN_PRODUCT_NAME, "Computer Keyboard");
         contentValues.put(StockEntry.COLUMN_PRICE, "50.23");
         contentValues.put(StockEntry.COLUMN_QUANTITY, 5);
-        contentValues.put(StockEntry.COLUMN_IMAGE, "android.resource://com.example.kaka.shopinventory/drawable/shop");
+        contentValues.put(StockEntry.COLUMN_IMAGE, "android.resource://com.example.kaka.shopinventory/drawable/no_image_100x100");
         contentValues.put(StockEntry.COLUMN_SUPPLIER_NAME, "Dell Computers");
         contentValues.put(StockEntry.COLUMN_SUPPLIER_EMAIL, "mvnshrikanth@gmail.com");
 
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
