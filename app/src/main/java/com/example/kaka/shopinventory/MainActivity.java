@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Clicked on the FAB", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements
                 Uri currentStockUri = ContentUris.withAppendedId(StockEntry.CONTENT_URI, id);
                 intent.setData(currentStockUri);
                 startActivity(intent);
-                //Toast.makeText(MainActivity.this, "Clicked on a item @ " + position, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements
     private void insertDummyStock() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(StockEntry.COLUMN_PRODUCT_NAME, "Computer Keyboard");
-        contentValues.put(StockEntry.COLUMN_PRICE, 50);
+        contentValues.put(StockEntry.COLUMN_PRICE, "50.23");
         contentValues.put(StockEntry.COLUMN_QUANTITY, 5);
         contentValues.put(StockEntry.COLUMN_IMAGE, "android.resource://com.example.kaka.shopinventory/drawable/shop");
         contentValues.put(StockEntry.COLUMN_SUPPLIER_NAME, "Dell Computers");
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_catalog, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -153,7 +153,9 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    public void sellProduct(int id, int quantity) {
+    public void sellProduct(int id, String qty) {
+
+        int quantity = Integer.parseInt(qty);
 
         if (quantity <= 0) {
             Toast.makeText(this, "No more items in store to sell", Toast.LENGTH_SHORT).show();
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements
             quantity--;
 
             ContentValues contentValues = new ContentValues();
-            contentValues.put(StockEntry.COLUMN_QUANTITY, quantity);
+            contentValues.put(StockEntry.COLUMN_QUANTITY, String.valueOf(quantity));
             Uri uri = ContentUris.withAppendedId(StockEntry.CONTENT_URI, id);
             int rowsAffected = getContentResolver().update(uri, contentValues, null, null);
 
@@ -171,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Item Sold", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
 }

@@ -48,8 +48,8 @@ public class StockCursorAdapter extends CursorAdapter {
         final int id = cursor.getInt(idColumnIndex);
         String name = cursor.getString(nameColumnIndex);
         String imageUrl = cursor.getString(imageColumnIndex);
-        final int quantity = cursor.getInt(qtyColumnIndex);
-        int price = cursor.getInt(prcColumnIndex);
+        final String quantity = cursor.getString(qtyColumnIndex);
+        String price = cursor.getString(prcColumnIndex);
 
         if (imageUrl != null) {
             Picasso.with(context)
@@ -61,7 +61,7 @@ public class StockCursorAdapter extends CursorAdapter {
 
         textViewName.setText(name);
         textViewQty.setText(String.valueOf(quantity));
-        textViewPrice.setText(String.valueOf("$" + price));
+        textViewPrice.setText("$" + price);
 
         imageButtonSell.setOnClickListener(new View.OnClickListener() {
             @Override
