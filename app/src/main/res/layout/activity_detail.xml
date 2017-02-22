@@ -128,7 +128,7 @@
                 android:id="@+id/edit_view_product_suplr_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="mvnshrikanth@gmail.com"
+                android:hint="supplier.email@gmail.com"
                 android:inputType="textEmailAddress"
                 android:textStyle="bold" />
         </LinearLayout>

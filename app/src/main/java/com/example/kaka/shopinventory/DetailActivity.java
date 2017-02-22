@@ -1,5 +1,6 @@
 package com.example.kaka.shopinventory;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -8,7 +9,9 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -38,6 +41,7 @@ public class DetailActivity extends AppCompatActivity implements
     private static final int EXISTING_STOCK_LOADER = 0;
     int id;
     private Uri mCurrentStockUri;
+    private Uri mImageUri;
     private ImageButton imageButton;
     private Button costIncButton;
     private Button costDecButton;
@@ -53,12 +57,10 @@ public class DetailActivity extends AppCompatActivity implements
     private final TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
         }
 
         @Override
@@ -84,9 +86,9 @@ public class DetailActivity extends AppCompatActivity implements
 
                 costEditText.addTextChangedListener(this);
             }
-
         }
     };
+    private int PICK_IMAGE_REQUEST = 1;
     private boolean mStockDataChanged = false;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -122,7 +124,8 @@ public class DetailActivity extends AppCompatActivity implements
         if (mCurrentStockUri == null) {
             setTitle("Add a Product");
             delButton.setVisibility(View.GONE);
-
+            qtyEditText.setText("0");
+            costEditText.setText("0");
         } else {
             setTitle("Edit a Product");
             getLoaderManager().initLoader(EXISTING_STOCK_LOADER, null, this);
@@ -135,10 +138,6 @@ public class DetailActivity extends AppCompatActivity implements
         emailEditText.setOnTouchListener(mTouchListener);
         costEditText.setOnTouchListener(mTouchListener);
         qtyEditText.setOnTouchListener(mTouchListener);
-        costDecButton.setOnTouchListener(mTouchListener);
-        costIncButton.setOnTouchListener(mTouchListener);
-        qtyIncButton.setOnTouchListener(mTouchListener);
-        qtyDecButton.setOnTouchListener(mTouchListener);
 
         costIncButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,8 +145,10 @@ public class DetailActivity extends AppCompatActivity implements
                 float cost = 0;
 
                 cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
+
                 cost++;
                 costEditText.setText(String.valueOf(cost));
+                mStockDataChanged = true;
             }
         });
 
@@ -159,6 +160,7 @@ public class DetailActivity extends AppCompatActivity implements
                 cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
                 cost--;
                 costEditText.setText(String.valueOf(cost));
+                mStockDataChanged = true;
             }
         });
 
@@ -170,6 +172,7 @@ public class DetailActivity extends AppCompatActivity implements
                 quantity = Integer.parseInt(qtyEditText.getText().toString());
                 quantity++;
                 qtyEditText.setText(String.valueOf(quantity));
+                mStockDataChanged = true;
             }
         });
 
@@ -181,9 +184,67 @@ public class DetailActivity extends AppCompatActivity implements
                 quantity = Integer.parseInt(qtyEditText.getText().toString());
                 quantity--;
                 qtyEditText.setText(String.valueOf(quantity));
+                mStockDataChanged = true;
             }
         });
 
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent;
+
+                if (Build.VERSION.SDK_INT < 19) {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                } else {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                }
+
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
+            }
+        });
+
+        ordrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(android.content.Intent.ACTION_SENDTO);
+                intent.setType("text/plain");
+                intent.setData(Uri.parse("mailto:" + emailEditText.getText().toString().trim()));
+                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "New order");
+                String bodyMessage = "Please send us as soon as possible more " +
+                        nameEditText.getText().toString().trim() +
+                        "!!!";
+                intent.putExtra(android.content.Intent.EXTRA_TEXT, bodyMessage);
+                startActivity(intent);
+            }
+        });
+
+        delButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteConfirmationDialog();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            mImageUri = data.getData();
+            String[] projection = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(mImageUri, projection, null, null, null);
+            assert cursor != null;
+            cursor.moveToNext();
+            cursor.close();
+
+            imageButton.setImageURI(mImageUri);
+            imageButton.invalidate();
+            mStockDataChanged = true;
+        }
     }
 
     @Override
@@ -261,8 +322,10 @@ public class DetailActivity extends AppCompatActivity implements
                 Picasso.with(getApplicationContext())
                         .load(imageUrl)
                         .into(imageButton);
+                imageButton.setTag(imageUrl);
             } else {
                 imageButton.setImageResource(R.drawable.no_image_100x100);
+                imageButton.setTag(R.drawable.no_image_100x100);
             }
 
             nameEditText.setText(name);
@@ -316,21 +379,44 @@ public class DetailActivity extends AppCompatActivity implements
         alertDialog.show();
     }
 
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Delete this product");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                deleteStock();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     private void saveStock() {
         String prodName = nameEditText.getText().toString().trim();
         String sellerName = sellerNameEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
         String cost = costEditText.getText().toString().trim().replace("$", "");
         String qty = qtyEditText.getText().toString().trim();
-
+        if (mImageUri == null) {
+            mImageUri = Uri.parse(imageButton.getTag().toString());
+        }
         if (mCurrentStockUri == null && isEmpty(prodName) && isEmpty(sellerName)
-                && isEmpty(email) && isEmpty(cost) && isEmpty(qty)) {
+                && isEmpty(email) && isEmpty(cost) && isEmpty(qty) && mImageUri == null) {
             return;
         }
         ContentValues contentValues = new ContentValues();
         contentValues.put(StockEntry.COLUMN_PRODUCT_NAME, prodName);
         contentValues.put(StockEntry.COLUMN_PRICE, cost);
         contentValues.put(StockEntry.COLUMN_QUANTITY, qty);
+        contentValues.put(StockEntry.COLUMN_IMAGE, mImageUri.toString());
         contentValues.put(StockEntry.COLUMN_SUPPLIER_NAME, sellerName);
         contentValues.put(StockEntry.COLUMN_SUPPLIER_EMAIL, email);
 
@@ -352,5 +438,18 @@ public class DetailActivity extends AppCompatActivity implements
             }
         }
 
+    }
+
+    private void deleteStock() {
+        if (mCurrentStockUri != null) {
+            int rowsDeleted = getContentResolver().delete(mCurrentStockUri, null, null);
+            if (rowsDeleted == 0) {
+                Toast.makeText(this, "Deletion failed", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Product Deleted", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        finish();
     }
 }
