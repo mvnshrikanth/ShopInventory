@@ -15,6 +15,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name=".data.StockProvider"
+            android:authorities="com.example.kaka.shopinventory"
+            android:exported="false" />
     </application>
 
 </manifest>
