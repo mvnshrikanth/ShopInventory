@@ -19,6 +19,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/image_desc"
         android:padding="5dp"
+        android:scaleType="centerInside"
         android:src="@drawable/no_image_100x100" />
 
     <LinearLayout
@@ -36,7 +37,7 @@
             android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -52,9 +53,9 @@
                 android:id="@+id/edit_view_product_qty"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:gravity="center"
-                android:hint=" 5 "
+                android:hint="0"
                 android:textStyle="bold" />
 
             <Button
@@ -66,7 +67,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -82,9 +83,9 @@
                 android:id="@+id/edit_view_product_price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:gravity="center"
-                android:hint="$5"
+                android:hint="$0"
                 android:textStyle="bold" />
 
             <Button
@@ -127,7 +128,7 @@
                 android:id="@+id/edit_view_product_suplr_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="mvnshrikanth@gmail.com"
+                android:hint="supplier.email@gmail.com"
                 android:inputType="textEmailAddress"
                 android:textStyle="bold" />
         </LinearLayout>

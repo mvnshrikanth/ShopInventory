@@ -84,13 +84,13 @@ public class StockProvider extends ContentProvider {
             throw new IllegalArgumentException("Product requires a Name.");
         }
 
-        Integer price = contentValues.getAsInteger(StockEntry.COLUMN_PRICE);
-        if (price != null && price < 0) {
+        float price = Float.parseFloat(contentValues.getAsString(StockEntry.COLUMN_PRICE));
+        if (price < 0) {
             throw new IllegalArgumentException("Product requires a valid price.");
         }
 
-        Integer quantity = contentValues.getAsInteger(StockEntry.COLUMN_QUANTITY);
-        if (quantity != null && quantity < 0) {
+        int quantity = Integer.parseInt(contentValues.getAsString(StockEntry.COLUMN_QUANTITY));
+        if (quantity < 0) {
             throw new IllegalArgumentException("Product requires a valid quantity.");
         }
 
@@ -147,8 +147,8 @@ public class StockProvider extends ContentProvider {
         }
 
         if (contentValues.containsKey(StockEntry.COLUMN_PRICE)) {
-            Integer price = contentValues.getAsInteger(StockEntry.COLUMN_PRICE);
-            if (price != null && price < 0) {
+            float price = Float.parseFloat(contentValues.getAsString(StockEntry.COLUMN_PRICE));
+            if (price < 0) {
                 throw new IllegalArgumentException("Product needs a valid price.");
             }
         }

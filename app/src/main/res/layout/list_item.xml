@@ -41,7 +41,7 @@
             android:layout_weight="1"
             android:gravity="top"
             android:hint="50"
-            android:textAppearance="?android:textAppearanceSmall"
+            android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorPrimaryDark" />
 
     </LinearLayout>
@@ -50,9 +50,9 @@
         android:id="@+id/text_view_product_price"
         android:layout_width="0dp"
         android:layout_height="@dimen/list_item_height"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:gravity="center"
-        android:hint="$50"
+        android:hint="$50.00"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="@color/colorPrimaryDark" />
 
