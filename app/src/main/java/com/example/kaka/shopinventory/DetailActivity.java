@@ -124,8 +124,6 @@ public class DetailActivity extends AppCompatActivity implements
         if (mCurrentStockUri == null) {
             setTitle("Add a Product");
             delButton.setVisibility(View.GONE);
-            qtyEditText.setText("0");
-            costEditText.setText("0");
         } else {
             setTitle("Edit a Product");
             getLoaderManager().initLoader(EXISTING_STOCK_LOADER, null, this);
@@ -144,8 +142,9 @@ public class DetailActivity extends AppCompatActivity implements
             public void onClick(View v) {
                 float cost = 0;
 
-                cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
-
+                if (!isEmpty(costEditText.getText())) {
+                    cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
+                }
                 cost++;
                 costEditText.setText(String.valueOf(cost));
                 mStockDataChanged = true;
@@ -156,11 +155,16 @@ public class DetailActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 float cost = 0;
-
-                cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
-                cost--;
-                costEditText.setText(String.valueOf(cost));
-                mStockDataChanged = true;
+                if (!isEmpty(costEditText.getText())) {
+                    cost = Float.parseFloat(costEditText.getText().toString().replace("$", ""));
+                }
+                if (cost <= 0) {
+                    Toast.makeText(DetailActivity.this, "Cost cannot be less than 0", Toast.LENGTH_SHORT).show();
+                } else {
+                    cost--;
+                    costEditText.setText(String.valueOf(cost));
+                    mStockDataChanged = true;
+                }
             }
         });
 
@@ -169,22 +173,31 @@ public class DetailActivity extends AppCompatActivity implements
             public void onClick(View v) {
                 int quantity = 0;
 
-                quantity = Integer.parseInt(qtyEditText.getText().toString());
+                if (!isEmpty(qtyEditText.getText())) {
+                    quantity = Integer.parseInt(qtyEditText.getText().toString());
+                }
                 quantity++;
                 qtyEditText.setText(String.valueOf(quantity));
                 mStockDataChanged = true;
             }
         });
 
+
         qtyDecButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int quantity = 0;
 
-                quantity = Integer.parseInt(qtyEditText.getText().toString());
-                quantity--;
-                qtyEditText.setText(String.valueOf(quantity));
-                mStockDataChanged = true;
+                if (!isEmpty(qtyEditText.getText())) {
+                    quantity = Integer.parseInt(qtyEditText.getText().toString());
+                }
+                if (quantity <= 0) {
+                    Toast.makeText(DetailActivity.this, "Quantity cannot be less than 0", Toast.LENGTH_SHORT).show();
+                } else {
+                    quantity--;
+                    qtyEditText.setText(String.valueOf(quantity));
+                    mStockDataChanged = true;
+                }
             }
         });
 
@@ -258,7 +271,6 @@ public class DetailActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_save:
                 saveStock();
-                finish();
                 return true;
             case android.R.id.home:
                 if (!mStockDataChanged) {
@@ -322,10 +334,8 @@ public class DetailActivity extends AppCompatActivity implements
                 Picasso.with(getApplicationContext())
                         .load(imageUrl)
                         .into(imageButton);
-                imageButton.setTag(imageUrl);
             } else {
                 imageButton.setImageResource(R.drawable.no_image_100x100);
-                imageButton.setTag(R.drawable.no_image_100x100);
             }
 
             nameEditText.setText(name);
@@ -405,11 +415,13 @@ public class DetailActivity extends AppCompatActivity implements
         String email = emailEditText.getText().toString().trim();
         String cost = costEditText.getText().toString().trim().replace("$", "");
         String qty = qtyEditText.getText().toString().trim();
+        //If mImageUri is null then the user did not select any iamge then take the Uri of the exisiting no_image_100x100.png
         if (mImageUri == null) {
-            mImageUri = Uri.parse(imageButton.getTag().toString());
+            mImageUri = Uri.parse("android.resource://com.example.kaka.shopinventory/drawable/no_image_100x100");
         }
-        if (mCurrentStockUri == null && isEmpty(prodName) && isEmpty(sellerName)
-                && isEmpty(email) && isEmpty(cost) && isEmpty(qty) && mImageUri == null) {
+        if (isEmpty(prodName) || isEmpty(sellerName)
+                || isEmpty(email) || isEmpty(cost) || isEmpty(qty) || mImageUri == null) {
+            Toast.makeText(this, "Please fill all the data", Toast.LENGTH_SHORT).show();
             return;
         }
         ContentValues contentValues = new ContentValues();
@@ -437,7 +449,7 @@ public class DetailActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Product saved", Toast.LENGTH_SHORT).show();
             }
         }
-
+        finish();
     }
 
     private void deleteStock() {
@@ -449,7 +461,6 @@ public class DetailActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Product Deleted", Toast.LENGTH_SHORT).show();
             }
         }
-
         finish();
     }
 }
