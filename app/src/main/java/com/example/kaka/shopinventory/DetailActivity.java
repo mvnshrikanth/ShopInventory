@@ -437,16 +437,12 @@ public class DetailActivity extends AppCompatActivity implements
 
             if (uri == null) {
                 Toast.makeText(this, "Error saving the product", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Product saved", Toast.LENGTH_SHORT).show();
             }
         } else {
             int rowsAffected = getContentResolver().update(mCurrentStockUri, contentValues, null, null);
 
             if (rowsAffected == 0) {
                 Toast.makeText(this, "Error saving the product", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Product saved", Toast.LENGTH_SHORT).show();
             }
         }
         finish();
@@ -457,8 +453,6 @@ public class DetailActivity extends AppCompatActivity implements
             int rowsDeleted = getContentResolver().delete(mCurrentStockUri, null, null);
             if (rowsDeleted == 0) {
                 Toast.makeText(this, "Deletion failed", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Product Deleted", Toast.LENGTH_SHORT).show();
             }
         }
         finish();

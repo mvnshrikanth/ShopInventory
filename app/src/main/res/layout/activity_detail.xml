@@ -42,6 +42,14 @@
             android:layout_gravity="center"
             android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Quantity"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textStyle="bold" />
+
             <Button
                 android:id="@+id/btn_view_add_qty"
                 android:layout_width="0dp"
@@ -72,6 +80,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Price"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btn_view_add_price"

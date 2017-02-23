@@ -169,8 +169,6 @@ public class MainActivity extends AppCompatActivity implements
 
             if (rowsAffected == 0) {
                 Toast.makeText(this, "Error updating product quantity", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Item Sold", Toast.LENGTH_SHORT).show();
             }
         }
     }
